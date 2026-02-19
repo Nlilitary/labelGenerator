@@ -1,0 +1,359 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.5, user-scalable=yes">
+<title>Генератор этикеток ТР ТС 3.2 Full Compliance</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+<div class="app-container">
+<h1>⚖️ Генератор этикеток ТР ТС 3.2
+<small>📦 Full Compliance • Сорт • Время • Рассол</small>
+<span class="free-version-badge" id="freeVersionBadge">FREE</span>
+</h1>
+
+<!-- ДОНАТ-БАННЕР -->
+<div class="donate-banner" id="donateBanner">
+<p><span style="font-size: 1.8rem;">❤️</span> Поддержите проект — получите полный доступ!</p>
+<button class="donate-btn" id="openDonateModalBtn">💰 Поддержать (199₽)</button>
+</div>
+
+<!-- СТАТУС ДОНАТА -->
+<div class="donate-status" id="donateStatus" style="display: none;">
+<span>⭐</span> Полная версия активирована
+</div>
+
+<div class="subhead">
+✅ Сорт сыра (7 категорий) • Время для скоропортящихся (≤72ч) • Масса с рассолом •
+Сортировка состава • Пищевая ценность для пива • Проверка шрифта • Чистая этикетка •
+Экспорт PNG/PDF • Автосохранение • 30+ шаблонов • 📦 Генератор партий
+</div>
+
+<div class="main-panel">
+<!-- Форма -->
+<div class="form-panel" id="formPanel">
+<div class="product-type-switch" id="productTypeSwitch">
+<button class="type-btn active" data-type="cheese">🧀 Сыр</button>
+<button class="type-btn" data-type="beer">🍺 Пиво</button>
+</div>
+<div class="templates-bar">
+<button class="templates-btn" id="openTemplatesBtn">📚 Выбрать шаблон</button>
+<button class="action-btn" id="saveAsTemplateBtn" title="Сохранить текущие настройки как шаблон">💾 Мой шаблон</button>
+</div>
+<div id="alertBox"></div>
+
+<!-- БЛОК АКТИВАЦИИ ПО КОДУ -->
+<div class="activation-code-section" id="activationCodeSection">
+<h4>🔑 Есть код активации?</h4>
+<div class="activation-input-group">
+<input type="text" id="activationCode" placeholder="Введите код из 8 символов" maxlength="8" style="text-transform:uppercase">
+<button class="btn-sm primary" id="activateCodeBtn">Активировать</button>
+</div>
+<div class="activation-hint">
+Код приходит после оплаты через СБП • Telegram: <a href="https://t.me/nilitary" target="_blank" style="color: #0088cc;">@nilitary</a>
+</div>
+</div>
+
+<!-- БЛОК ОГРАНИЧЕНИЙ -->
+<div class="unlock-features" id="unlockFeaturesMessage">
+<h4>🔒 Бесплатная версия</h4>
+<ul class="feature-list">
+<li>✓ Базовые поля для заполнения</li>
+<li>✓ Предпросмотр этикетки</li>
+<li>— Экспорт PNG/PDF (только в полной версии)</li>
+<li>— Сохранение своих шаблонов</li>
+<li>— Генератор партий (только в полной версии)</li>
+</ul>
+<p style="text-align: center; margin-top: 10px;">
+<button class="btn-sm primary" id="unlockDonateBtn">❤️ Получить код за 199₽</button>
+</p>
+</div>
+
+<div id="dynamicForm"></div>
+<button class="generate-btn" id="generateBtn">✨ Обновить этикетку</button>
+<div class="asterisk-hint">★ — обязательные поля (ТР ТС 022/2011, 033/2013, 047/2018)</div>
+<div id="validationSummary" class="validation-summary"></div>
+<div class="autosave-status" id="autosaveStatus"></div>
+</div>
+
+<!-- Превью -->
+<div class="preview-panel">
+<div class="preview-header">
+<h2>🏷️ Этикетка</h2>
+<div class="action-buttons">
+<button class="action-btn" id="exportPngBtn" disabled>📸 PNG</button>
+<button class="action-btn" id="exportPdfBtn" disabled>📄 PDF</button>
+<button class="action-btn batch" id="openBatchGeneratorBtn" disabled>📦 Партия</button>
+</div>
+</div>
+<div id="labelPreviewArea" class="label-preview">
+<div style="text-align:center; padding:35px; color:#666; font-size:0.95rem;">
+Заполните форму или выберите шаблон
+</div>
+</div>
+
+<!-- Compliance Widget -->
+<div class="compliance-widget">
+<h4>🛡️ Проверка соответствия ТР ТС</h4>
+<div class="compliance-row">
+<span>Контрастность (WCAG 2.1 AA)</span>
+<span id="complianceContrast" class="compliance-value">—</span>
+</div>
+<div class="compliance-row">
+<span>Шрифт предупреждения (≥2.5 мм)</span>
+<span id="complianceFontWarn" class="compliance-value">—</span>
+</div>
+<div class="compliance-row">
+<span>Пищевая ценность</span>
+<span id="complianceNutrition" class="compliance-value">—</span>
+</div>
+<div class="compliance-row">
+<span>Состав (порядок убывания)</span>
+<span id="complianceIngredients" class="compliance-value" style="color:#666">Ручная проверка</span>
+</div>
+<div class="compliance-row" id="complianceCheeseTypeRow" style="display:none">
+<span>Сорт сыра указан</span>
+<span id="complianceCheeseType" class="compliance-value">—</span>
+</div>
+<div class="compliance-row" id="complianceTimeRow" style="display:none">
+<span>Время изготовления</span>
+<span id="complianceTime" class="compliance-value">—</span>
+</div>
+<div class="compliance-row" id="complianceBrineRow" style="display:none">
+<span>Масса с рассолом</span>
+<span id="complianceBrine" class="compliance-value">—</span>
+</div>
+</div>
+
+<div class="contrast-panel" id="contrastPanel">
+<div style="font-weight:700; margin-bottom:8px; font-size:0.92rem;">♿ Детали контраста</div>
+<div id="contrastResult" class="contrast-indicator">
+<span style="color:#666">Проверка после генерации...</span>
+</div>
+<div id="contrastDetails" style="margin-top:10px; font-size:0.88rem; color:#555;"></div>
+</div>
+
+<div class="checklist-panel">
+<div style="font-weight:700; margin-bottom:8px; font-size:0.92rem;">📋 ТР ТС: <span id="checklistPercent">0%</span></div>
+<div class="progress-bar"><div class="progress-fill" id="progressFill"></div></div>
+<div id="checklistItems" style="font-size:0.88rem;"></div>
+</div>
+
+<div class="mobile-test-note">
+📱 Адаптировано для мобильных. Для печати используйте PDF или Ctrl+P.
+</div>
+
+<div class="doc-block">
+<h3>📚 Требования техрегламентов</h3>
+<ul>
+<li><strong>ТР ТС 022/2011</strong> — состав в порядке убывания массы, масса/объём, дата, срок, изготовитель, ЕАС</li>
+<li><strong>ТР ТС 033/2013 (сыр)</strong> — сорт сыра обязателен, пищевая ценность на 100 г</li>
+<li><strong>Скоропортящиеся (≤72ч)</strong> — время изготовления обязательно (часы:минуты)</li>
+<li><strong>Рассольные сыры</strong> — указывать массу нетто и массу с рассолом</li>
+<li><strong>ТР ТС 047/2018 (пиво)</strong> — две предупредительные надписи, высота шрифта ≥2.5 мм, чёрный фон</li>
+<li><strong>Аллергены</strong> — выделяются в составе жирным шрифтом</li>
+<li><strong>Печать</strong> — используйте матовую бумагу, шрифт основного текста ≥1.5 мм</li>
+</ul>
+</div>
+</div>
+</div>
+
+<hr>
+<div style="text-align:center; color:#3a5c77; font-size:0.88rem;">
+© Генератор этикеток ТР ТС v3.2 Full Compliance • Сорт • Время • Рассол • ЕАЭС
+</div>
+</div>
+
+<!-- Модальное окно шаблонов -->
+<div class="modal-overlay" id="templatesModal">
+<div class="modal">
+<div class="modal-header">
+<h3>📚 Библиотека шаблонов (30+)</h3>
+<button class="modal-close" id="closeTemplatesBtn">&times;</button>
+</div>
+<div class="modal-search">
+<input type="text" id="templateSearch" placeholder="🔍 Поиск шаблона...">
+<select id="templateTypeFilter">
+<option value="all">Все типы</option>
+<option value="cheese">🧀 Сыры</option>
+<option value="beer">🍺 Пиво</option>
+</select>
+<select id="templateTagFilter">
+<option value="all">Все теги</option>
+<option value="popular">⭐ Популярные</option>
+<option value="hard">Твёрдые</option>
+<option value="soft">Мягкие</option>
+<option value="brined">Рассольные</option>
+<option value="ale">Эль</option>
+<option value="lager">Лагер</option>
+</select>
+</div>
+<div class="modal-body">
+<div class="templates-grid" id="templatesGrid"></div>
+<div class="my-templates-section">
+<h4>💼 Мои шаблоны</h4>
+<div class="my-templates-list" id="myTemplatesList">
+<div style="color:#666; font-size:0.9rem;">Нет сохранённых шаблонов</div>
+</div>
+</div>
+</div>
+<div class="modal-footer">
+<div class="modal-footer-left">
+<button class="btn-sm secondary" id="importTemplatesBtn">📥 Импорт JSON</button>
+<input type="file" id="importFile" accept=".json" style="display:none">
+<button class="btn-sm secondary" id="exportTemplatesBtn">📤 Экспорт моих</button>
+</div>
+<div class="modal-footer-right">
+<button class="btn-sm danger" id="clearMyTemplatesBtn">🗑️ Очистить мои</button>
+<button class="btn-sm primary" id="applyTemplateBtn" disabled>✅ Применить</button>
+</div>
+</div>
+</div>
+</div>
+
+<!-- Модальное окно доната -->
+<div class="modal-overlay" id="donateModal">
+<div class="modal donate-modal">
+<div class="modal-header">
+<h3>❤️ Поддержать проект</h3>
+<button class="modal-close" id="closeDonateBtn">&times;</button>
+</div>
+<div class="modal-body">
+<p style="margin-bottom: 20px; text-align: center;">
+Выберите сумму поддержки и получите код активации!
+</p>
+<div class="donate-options" id="donateOptions">
+<div class="donate-option" data-amount="199" data-description="Базовый доступ">
+<h4>🍺 Базовый</h4>
+<div class="price">199 ₽</div>
+<div class="description">Полный доступ ко всем функциям</div>
+</div>
+<div class="donate-option" data-amount="499" data-description="Премиум">
+<h4>🧀 Премиум</h4>
+<div class="price">499 ₽</div>
+<div class="description">+ Приоритетная поддержка</div>
+</div>
+<div class="donate-option" data-amount="999" data-description="Бизнес">
+<h4>🏭 Бизнес</h4>
+<div class="price">999 ₽</div>
+<div class="description">+ Коммерческое использование</div>
+</div>
+</div>
+<div class="payment-details" id="paymentDetails" style="display: none;">
+<h4 style="text-align: center; margin-bottom: 15px;">📱 Оплата через СБП</h4>
+<div class="payment-info">
+<p><strong>Номер телефона:</strong> <span style="font-size: 1.3rem;">+7 (950) 418-48-71</span></p>
+<p><strong>Банк:</strong> Т-Банк (Тинькофф)</p>
+<p><strong>Сумма:</strong> <span id="paymentAmount">199</span> ₽</p>
+<p><strong>Назначение:</strong> <span id="paymentPurpose">Донат на развитие</span></p>
+</div>
+<a href="https://t.me/nilitary" target="_blank" class="telegram-link">
+✈️ Написать @nilitary для получения кода
+</a>
+<p style="font-size: 0.85rem; color: #666; margin-top: 10px;">
+После оплаты напишите в Telegram скриншот перевода — вы получите код активации
+</p>
+<div class="generated-code" id="generatedCode" style="display: none;">
+<div>Ваш код активации:</div>
+<div style="font-size: 2rem; letter-spacing: 5px;" id="codeDisplay">ABC12345</div>
+<button class="copy-code-btn" id="copyCodeBtn">📋 Скопировать</button>
+</div>
+<div style="display: flex; gap: 10px; margin-top: 15px; flex-wrap: wrap;">
+<button class="btn-sm secondary" id="cancelDonateBtn" style="flex: 1;">Отмена</button>
+<button class="btn-sm primary" id="gotCodeBtn" style="flex: 1;">✅ У меня есть код</button>
+</div>
+</div>
+<div class="unlock-features" style="margin-top: 20px;">
+<h4>🔓 Что откроется:</h4>
+<ul class="feature-list">
+<li>✓ Экспорт в PNG и PDF</li>
+<li>✓ Сохранение своих шаблонов</li>
+<li>✓ Импорт/экспорт шаблонов</li>
+<li>✓ Генератор партий (30-50 этикеток за 1 клик)</li>
+<li>✓ Все будущие обновления</li>
+</ul>
+</div>
+</div>
+<div class="modal-footer">
+<div class="modal-footer-left">
+<button class="btn-sm secondary" id="donateLaterBtn">Позже</button>
+</div>
+<div class="modal-footer-right">
+<button class="btn-sm primary" id="selectDonateOptionBtn" disabled>Выбрать</button>
+</div>
+</div>
+</div>
+</div>
+
+<!-- Модальное окно генератора партий -->
+<div class="modal-overlay" id="batchGeneratorModal">
+<div class="modal" style="max-width: 700px;">
+<div class="modal-header">
+<h3>📦 Генератор партий</h3>
+<button class="modal-close" id="closeBatchGeneratorBtn">&times;</button>
+</div>
+<div class="modal-body">
+<p style="margin-bottom: 15px; color: #666;">
+Создайте multiple этикеток с разным временем и номерами партий автоматически
+</p>
+<div class="batch-generator-grid">
+<div class="form-group">
+<label>🕐 Начало времени</label>
+<input type="text" id="batchStartTime" placeholder="08:00" maxlength="5" value="08:00">
+</div>
+<div class="form-group">
+<label>🔢 Количество</label>
+<input type="number" id="batchQuantity" placeholder="30" min="1" max="100" value="30">
+</div>
+<div class="form-group">
+<label>⏱ Интервал (мин)</label>
+<input type="number" id="batchInterval" placeholder="15" min="1" max="120" value="15">
+</div>
+<div class="form-group">
+<label>📦 Префикс партии</label>
+<input type="text" id="batchPrefix" placeholder="CH-2026-01-" value="CH-2026-01-">
+</div>
+</div>
+<div class="batch-summary">
+<h4>📊 Итоговая статистика</h4>
+<div class="batch-stats">
+<div class="batch-stat">
+<div class="batch-stat-value" id="batchTotalCount">30</div>
+<div class="batch-stat-label">Этикеток</div>
+</div>
+<div class="batch-stat">
+<div class="batch-stat-value" id="batchTimeSpan">7.5 ч</div>
+<div class="batch-stat-label">Временной диапазон</div>
+</div>
+<div class="batch-stat">
+<div class="batch-stat-value" id="batchLastTime">12:45</div>
+<div class="batch-stat-label">Последняя партия</div>
+</div>
+</div>
+</div>
+<div class="batch-preview-list" id="batchPreviewList"></div>
+<div class="alert-box alert-info" style="margin-top: 15px;">
+<strong>ℹ️ Важно:</strong> Каждая этикетка будет иметь уникальное время и номер партии. Все данные сохраняются в один PDF файл.
+</div>
+</div>
+<div class="modal-footer">
+<div class="modal-footer-left">
+<button class="btn-sm secondary" id="cancelBatchBtn">Отмена</button>
+</div>
+<div class="modal-footer-right">
+<button class="btn-sm batch" id="generateBatchBtn">📦 Создать PDF</button>
+</div>
+</div>
+</div>
+</div>
+
+<!-- ПОДКЛЮЧЕНИЕ МОДУЛЕЙ (ВАЖНЫЙ ПОРЯДОК!) -->
+<script src="js/templates.js"></script>
+<script src="js/donate.js"></script>
+<script src="js/batch-generator.js"></script>
+<script src="js/main.js"></script>
+</body>
+</html>
