@@ -8,7 +8,7 @@
   
   ### 📦 Полное соответствие требованиям ТР ТС 022/2011, 033/2013, 047/2018
   
-  [🌐 Перейти на сайт](https://nlilitary.github.io/) • [📝 Сообщить об ошибке](https://github.com/Nlilitary/nilitary.github.io/issues) • [💬 Telegram](https://t.me/nilitary)
+  [🌐 Перейти на сайт](https://nlilitary.github.io/labelGenerator/) • [📝 Сообщить об ошибке](https://github.com/Nlilitary/nilitary.github.io/issues) • [💬 Telegram](https://t.me/nilitary)
 
 </div>
 
@@ -48,3 +48,4 @@ cd nilitary.github.io
 
 # Откройте index.html в браузере
 # Никаких дополнительных зависимостей не требуется!
+
