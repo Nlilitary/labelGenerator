@@ -35,7 +35,7 @@
 
 ### Онлайн версия
 
-Просто откройте сайт: **[https://nlilitary.github.io/]([https://nlilitary.github.io/](https://nlilitary.github.io/labelGenerator/))**
+Просто откройте сайт: **https://nlilitary.github.io/labelGenerator**
 
 ### Локальный запуск
 
@@ -48,5 +48,6 @@ cd nilitary.github.io
 
 # Откройте index.html в браузере
 # Никаких дополнительных зависимостей не требуется!
+
 
 
